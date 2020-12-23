@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Map Point</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/css/ol.css"
+    type="text/css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
+  <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/build/ol.js"></script>
+  <style>
+    .map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Maps -->
+    <div class="section">
+      <div class="box p-0">
+        <article class="media">
+          <div class="media-content">
+            <div id="map" class="map"></div>
+            <div class="content">
+              <p class="has-text-centered">
+                <i>Click lokasi pada peta untuk menambah point</i>
+              </p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- Data Point -->
+    <div class="section py-2">
+      <button class="btn-add-point mb-5">+ point</button>
+      <table id="point-table">
+        <thead>
+          <tr>
+            <th>Label</th>
+            <th>Kota/Kab</th>
+            <th>Provinsi</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% points.forEach(point => { %>
+          <tr>
+            <td><%= point.label %></td>
+            <td><%= point.kota_kab %></td>
+            <td><%= point.provinsi %></td>
+            <td><%= point.latitude %></td>
+            <td><%= point.longitude %></td>
+            <td><a href="#" class="edit-point" data-id="<%= point.id %>">Edit</a> | <a href="#" class="delete-point"
+                data-id="<%= point.id %>">Delete</a></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add point modal -->
+  <div class="modal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Add Point</p>
+        <button class="delete close-modal" aria-label="close"></button>
+      </header>
+      <section class="modal-card-body">
+        <form class="add-point" id="input-form" name="input-form">
+          <div class="field">
+            <label class="label">Label</label>
+            <div class="control">
+              <input class="input is-small" type="text" name="label" id="label" placeholder="e.g Point x">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Kota/Kabupaten</label>
+            <div class="control">
+              <input class="input is-small" type="text" name="kota_kab" id="kota_kab" placeholder="e.g Kota Bandung">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Provinsi</label>
+            <div class="control">
+              <input class="input is-small" type="text" name="provinsi" id="provinsi" placeholder="e.g Jawa Barat">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Latitude</label>
+            <div class="control">
+              <input class="input is-small" type="text" name="latitude" id="latitude">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Longitude</label>
+            <div class="control">
+              <input class="input is-small" type="text" name="longitude" id="longitude">
+            </div>
+          </div>
+        </form>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button is-success btn-submit">Submit</button>
+        <button class="button close-modal">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+  </script>
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js">
+  </script>
+  <script src="../script.js"></script>
+</body>
+
+</html>
