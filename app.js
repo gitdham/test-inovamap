@@ -13,6 +13,10 @@ app.use(express.static('public'))
 const controller = require('./controller')
 app.route('/')
   .get(controller.homePage)
+
+
+app.route('/point')
+  .get(controller.selectAllPoint)
   .post(controller.insertPoint)
   .put(controller.updatePoint)
   .delete(controller.deletePoint)
