@@ -4,23 +4,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRUD Map Point</title>
+  <title>Map Point</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/css/ol.css"
     type="text/css">
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
   <style>
     .map {
-      height: 400px;
+      height: 350px;
       width: 100%;
+    }
+
+    th,
+    td {
+      font-size: .8rem;
+    }
+
+    .action-button {
+      text-align: center
+    }
+
+    .action-button button {
+      width: 20px;
+      height: 10px;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
+  <div class="container pt-3">
+    <button class="btn-add-point button is-success has-text-weight-semibold">Add Point</button>
     <!-- Maps -->
-    <div class="section">
+    <div class="section p-0 mt-5">
       <div class="box p-0">
         <article class="media">
           <div class="media-content">
@@ -31,11 +46,9 @@
         </article>
       </div>
     </div>
-
     <!-- Data Point -->
-    <div class="section py-2">
-      <button class="btn-add-point mb-5">+ point</button>
-      <table id="data-table">
+    <div class="section p-0 mt-5">
+      <table id="data-table" class="hover row-border">
         <thead>
           <tr>
             <th>Label</th>
@@ -46,10 +59,6 @@
             <th>Aksi</th>
           </tr>
         </thead>
-        <!-- <tbody>
-          <a href="#" class="edit-point" data-id="${point.id}">Edit</a> | <a href="#" class="delete-point"
-  //   //       data-id="${point.id}">Delete</a>
-        </tbody> -->
       </table>
     </div>
   </div>
@@ -107,11 +116,8 @@
     </div>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-  </script>
-  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js">
-  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+  <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.4.3/build/ol.js"></script>
   <script src="../script.js"></script>
 </body>

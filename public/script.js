@@ -12,6 +12,7 @@ $(document).ready(function () {
     // close modal
     if ($(e.target).hasClass('close-modal')) {
       $('.modal').toggleClass('is-active')
+      $('#input-form input').val('')
     }
 
     // submit form button
@@ -187,8 +188,26 @@ $(document).ready(function () {
       columnDefs: [{
         targets: -1,
         data: null,
-        defaultContent: '<button class="edit">edit</button> <button class="del">delete</button>'
-      }]
+        defaultContent: `
+          <div class="action-button">
+            <button class="edit is-size-7 button is-info is-outlined">Edit</button> <button class="del is-size-7 button is-danger is-outlined ml-2">Delete</button>
+          </div>
+        `
+      }],
+      multiSort: [{
+        targets: [0],
+        orderData: [0, 1]
+      }, {
+        targets: [1],
+        orderData: [1, 0]
+      }, {
+        targets: [4],
+        orderData: [4, 0]
+      }],
+      // scrollX: true,
+      scrollY: '30vh',
+      scrollCollapse: true,
+      paging: false,
     })
 
     $('#data-table .edit').click(function () {
@@ -196,9 +215,9 @@ $(document).ready(function () {
       showUpdateForm(data.id)
     })
 
-    $('#data-table .del').click(function () {
+    $('#data-table .del').click(async function () {
       const data = table.row($(this).parents('tr')).data()
-      deletePoint(data.id)
+      if (confirm(`Anda yakin akan menghapus ${data.label}?`)) deletePoint(data.id)
     })
 
     return table
