@@ -1,4 +1,5 @@
 $(document).ready(function () {
+  // get data from database
   getDataPoint()
 
   // open add-point modal form
@@ -6,15 +7,11 @@ $(document).ready(function () {
     $('.modal').toggleClass('is-active')
   })
 
-  $('#point-table').DataTable()
-
-
   // on click event
   $(document).click(async function (e) {
     // close modal
     if ($(e.target).hasClass('close-modal')) {
       $('.modal').toggleClass('is-active')
-      $('input-form input').val('')
     }
 
     // submit form button
@@ -26,30 +23,18 @@ $(document).ready(function () {
       if (form_data.has('id')) updatePoint(form_data)
       else postPoint(form_data)
     }
-
-    // edit button
-    if ($(e.target).hasClass('edit-point')) {
-      const point_id = e.target.dataset.id
-      const selectPoint = await getPointById(point_id)
-      if (selectPoint.status !== 'ok') alert(selectPoint.msg)
-      else showUpdateForm(selectPoint.data)
-    }
-
-    // delete button
-    if ($(e.target).hasClass('delete-point')) {
-      const point_id = e.target.dataset.id
-      deletePoint(point_id)
-    }
   })
 
   // Read
   async function getDataPoint() {
-    const data_point = await fetch('/point', { method: 'GET' })
+    const point_data = await fetch('/point', { method: 'GET' })
       .then((res) => res.json())
       .then((res) => res.data)
 
-    dataToTable(data_point)
-    showPointOnMap(data_point)
+    await setGeoMarker(point_data)
+    await setGeoPointStyle(point_data)
+    renderMap(point_data)
+    dataToTable(point_data)
   }
 
   // Read by ID
@@ -73,23 +58,29 @@ $(document).ready(function () {
 
     alert(posting.msg)
     location.reload()
-
   }
 
   // Update
-  function showUpdateForm(point) {
-    $('.modal-card-title').html('Edit Point')
+  async function showUpdateForm(point_id) {
+    const selected_point = await getPointById(point_id)
 
-    const id_field = `<input class="input is-small" type="hidden" name="id" id="id" value="${point.id}">`
+    if (selected_point.status !== 'ok') {
+      alert(selected_point.msg)
+    } else {
+      const data = selected_point.data
+      $('.modal-card-title').html('Edit Point')
 
-    $('#input-form').prepend(id_field)
-    $('#label').val(point.label)
-    $('#kota_kab').val(point.kota_kab)
-    $('#provinsi').val(point.provinsi)
-    $('#latitude').val(point.latitude)
-    $('#longitude').val(point.longitude)
+      const id_field = `<input class="input is-small" type="hidden" name="id" id="id" value="${data.id}">`
 
-    $('.modal').toggleClass('is-active')
+      $('#input-form').prepend(id_field)
+      $('#label').val(data.label)
+      $('#kota_kab').val(data.kota_kab)
+      $('#provinsi').val(data.provinsi)
+      $('#latitude').val(data.latitude)
+      $('#longitude').val(data.longitude)
+
+      $('.modal').toggleClass('is-active')
+    }
   }
 
   async function updatePoint(form_data) {
@@ -124,93 +115,45 @@ $(document).ready(function () {
     location.reload()
   }
 
-  function dataToTable(data_point) {
-    let rows = ''
-    data_point.forEach((point) => {
-      rows += `
-        <tr>
-          <td>${point.label}</td>
-          <td>${point.kota_kab}</td>
-          <td>${point.provinsi}</td>
-          <td>${point.latitude}</td>
-          <td>${point.longitude}</td>
-          <td><a href="#" class="edit-point" data-id="${point.id}">Edit</a> | <a href="#" class="delete-point"
-          data-id="${point.id}">Delete</a></td>
-        </tr>
-      `
-    })
-
-    $('tbody').html(rows)
-  }
-
-  class Point {
-    constructor(point_name, longitude, latitude) {
-      this.point_name = point_name
-      this.longitude = longitude
-      this.latitude = latitude
-    }
-
-    pointMarkFeature() {
-      const lonLat = [this.longitude, this.latitude]
-
-      return new ol.Feature({
-        geometry: new ol.geom.Point(ol.proj.fromLonLat(lonLat)),
-        name: this.point_name
+  function setGeoMarker(point_data) {
+    point_data.forEach((item) => {
+      item.point = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([item.longitude, item.latitude]))
       })
-    }
-  }
-
-  function createPointObj(data_point) {
-    let arrOfObj = []
-    data_point.forEach((point) => {
-      point.label = new Point(point.label, point.longitude, point.latitude)
-      arrOfObj.push(point.label)
     })
-    return arrOfObj
   }
 
-  async function showPointOnMap(data_point) {
-    const point_obj = await createPointObj(data_point)
-
-    const pointsMark = []
-    point_obj.forEach((point) => {
-      pointsMark.push(point.pointMarkFeature())
-    })
-
-    await setPointMarkStyle(pointsMark)
-
-    setMap(pointsMark)
-  }
-
-  function markStyle(point_name) {
-    const point_svg = `
+  function setGeoPointStyle(point_data) {
+    point_data.forEach((item) => {
+      const point_svg = `
         <svg width="40" height="80" version="1.1" xmlns="http://www.w3.org/2000/svg">
           <path d="M16 0c-5.523 0-10 4.477-10 10 0 10 10 22 10 22s10-12 10-22c0-5.523-4.477-10-10-10zM16 16c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z"></path>
         </svg>
       `
 
-    return new ol.style.Style({
-      image: new ol.style.Icon({
-        src: `data:image/svg+xml;utf8,${point_svg}`,
-        scale: 0.7
-      }),
-      text: new ol.style.Text({
-        text: point_name,
+      const point_style = new ol.style.Style({
+        image: new ol.style.Icon({
+          src: `data:image/svg+xml;utf8,${point_svg}`,
+          scale: 0.7
+        }),
+        text: new ol.style.Text({
+          text: item.label
+        })
       })
+      item.point.setStyle(point_style)
     })
   }
 
-  function setPointMarkStyle(pointsMark) {
-    pointsMark.forEach((item) => item.setStyle(markStyle(item.get('name'))))
-  }
+  function renderMap(point_data) {
+    const pointsMark = []
+    point_data.forEach((item) => pointsMark.push(item.point))
 
-  function setMap(pointsMark) {
     const vectorSource = new ol.source.Vector({
-      features: pointsMark,
+      features: pointsMark
     })
 
     const vectorLayer = new ol.layer.Vector({
-      source: vectorSource,
+      source: vectorSource
     })
 
     const tileLayer = new ol.layer.Tile({
@@ -223,10 +166,42 @@ $(document).ready(function () {
       view: new ol.View({
         center: [0, 0],
         zoom: 1,
+        maxZoom: 20
       })
     })
 
     return map
+  }
+
+  function dataToTable(data_point) {
+    const table = $('#data-table').DataTable({
+      data: data_point,
+      columns: [
+        { data: 'label' },
+        { data: 'kota_kab' },
+        { data: 'provinsi' },
+        { data: 'latitude' },
+        { data: 'longitude' },
+        { data: 'aksi' }
+      ],
+      columnDefs: [{
+        targets: -1,
+        data: null,
+        defaultContent: '<button class="edit">edit</button> <button class="del">delete</button>'
+      }]
+    })
+
+    $('#data-table .edit').click(function () {
+      const data = table.row($(this).parents('tr')).data()
+      showUpdateForm(data.id)
+    })
+
+    $('#data-table .del').click(function () {
+      const data = table.row($(this).parents('tr')).data()
+      deletePoint(data.id)
+    })
+
+    return table
   }
 })
 
