@@ -171,6 +171,19 @@ $(document).ready(function () {
       })
     })
 
+    map.on('singleclick', function (e) {
+      const lat_long = ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326')
+      const lat = lat_long[1]
+      const long = lat_long[0]
+      addPoint(lat, long)
+    })
+
+    function addPoint(lat, long) {
+      $('.modal').toggleClass('is-active')
+      $('#latitude').val(lat)
+      $('#longitude').val(long)
+    }
+
     return map
   }
 
